@@ -14,7 +14,7 @@ void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
               char *nombreantiguo, char *nombrenuevo);
 int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-             EXT_DATOS *memdatos, char *nombre)
+             EXT_DATOS *memdatos, char *nombre);
 int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
            EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,
            char *nombre,  FILE *fich);
@@ -46,11 +46,10 @@ int main()
      FILE *fent;
      
      // Lectura del fichero completo de una sola vez
-     ...
+     //...
      
      fent = fopen("particion.bin","r+b");
-     fread(&datosfich, SIZE_BLOQUE, MAX_BLOQUES_PARTICION, fent);    
-     
+     fread(&datosfich, SIZE_BLOQUE, MAX_BLOQUES_PARTICION, fent);
      
      memcpy(&ext_superblock,(EXT_SIMPLE_SUPERBLOCK *)&datosfich[0], SIZE_BLOQUE);
      memcpy(&directorio,(EXT_ENTRADA_DIR *)&datosfich[3], SIZE_BLOQUE);
@@ -65,24 +64,75 @@ int main()
 		 fflush(stdin);
 		 fgets(comando, LONGITUD_COMANDO, stdin);
 		 } while (ComprobarComando(comando,orden,argumento1,argumento2) !=0);
-	     if (strcmp(orden,"dir")==0) {
-            Directorio(&directorio,&ext_blq_inodos);
+		 
+		/* printf("\n%s",comando);
+		 int a=strcmp(&comando,"info\n");
+		 printf("\n%d",a);
+		 printf("\n%d",strlen (&comando));
+		  printf("\n%d",strlen ("info"));
+		*/
+		if (strcmp(comando,"info\n")==0) {
+			printf("\nINFO");
+            //Directorio(&directorio,&ext_blq_inodos);
             continue;
-            }
-         ...
-         // Escritura de metadatos en comandos rename, remove, copy     
+        }
+        if (strcmp(comando,"rename\n")==0) {
+		 	printf("\nRENAME");
+            //Directorio(&directorio,&ext_blq_inodos);
+            continue;
+        }
+        if (strcmp(comando,"remove\n")==0) {
+		 	printf("\nREMOVE");
+            //Directorio(&directorio,&ext_blq_inodos);
+            continue;
+        }
+        if (strcmp(comando,"copy\n")==0) {
+		 	printf("\nCOPY");
+            //Directorio(&directorio,&ext_blq_inodos);
+            continue;
+        }
+            
+         //...
+         // Escritura de metadatos en comandos rename, remove, copy
+         /*
          Grabarinodosydirectorio(&directorio,&ext_blq_inodos,fent);
          GrabarByteMaps(&ext_bytemaps,fent);
          GrabarSuperBloque(&ext_superblock,fent);
          if (grabardatos)
            GrabarDatos(&memdatos,fent);
          grabardatos = 0;
-         //Si el comando es salir se habrán escrito todos los metadatos
+         //Si el comando es salir se habrÃ¡n escrito todos los metadatos
          //faltan los datos y cerrar
-         if (strcmp(orden,"salir")==0){
-            GrabarDatos(&memdatos,fent);
+         */
+        if (strcmp(comando,"salir\n")==0){
+        	//GrabarDatos(&memdatos,fent);
+            printf("\nSALIR");
             fclose(fent);
             return 0;
-         }
+        }
      }
+}
+
+
+void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich){
+   ext_superblock->s_inodes_count = MAX_INODOS;
+   ext_superblock->s_block_size = SIZE_BLOQUE;
+   ext_superblock->s_blocks_count = MAX_BLOQUES_PARTICION;
+   ext_superblock->s_first_data_block = PRIM_BLOQUE_DATOS;
+   for(int i = 0; i < MAX_INODOS; i++){
+
+   }
+
+
+
+}
+void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup){
+
+   printf("Bloques %d bytes\n", SIZE_BLOQUE);
+   printf("inodos particion = %d\n", MAX_INODOS);
+   printf("inodos libres = %d\n", SIZE_BLOQUE);
+   printf("Bloques particion = %d\n", MAX_BLOQUES_PARTICION);
+   printf("Bloques libres = %d\n", SIZE_BLOQUE);
+   printf("Primer bloque de datos = %d\n", PRIM_BLOQUE_DATOS);
+   
 }
