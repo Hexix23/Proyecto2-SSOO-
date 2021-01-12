@@ -89,10 +89,12 @@ int main()
 		}
 		if(strcmp(orden,"dir")==0){
 			printf("DIR\n");
+			BuscaFich;
 			continue;
 		}
 		if(strcmp(orden,"rename")==0){
 			printf("RENAME\n");
+			Renombrar(directorio, ext_blq_inodos, argumento1, argumento2);
 			continue;
 		}
 		if(strcmp(orden,"imprimir")==0){
@@ -214,15 +216,30 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
 	
 	printf("Inodos: ");
 	for(i=0;i<MAX_INODOS;i++){
-		printf("%d",ext_bytemaps->bmap_inodos[i]);
+		printf("%d ",ext_bytemaps->bmap_inodos[i]);
 	}
 	printf("\nBloques [0-25]: ");
 	for(i=0;i<25;i++){
-		printf("%d", ext_bytemaps->bmap_bloques[i]);
+		printf("%d ", ext_bytemaps->bmap_bloques[i]);
 	}
 	printf("\n");
 }	
 	
-	
-	
+int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, char *nombre){
+
+
+
+
+}
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos){
+
+
+
+}
+
+
+int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, char *nombreantiguo, char *nombrenuevo){
+	printf("Hola");
+	return 0;
+}
 	
