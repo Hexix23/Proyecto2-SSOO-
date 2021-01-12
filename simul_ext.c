@@ -50,6 +50,7 @@ int main()
      
      fent = fopen("particion.bin","r+b");
      fread(&datosfich, SIZE_BLOQUE, MAX_BLOQUES_PARTICION, fent);
+     printf("");
      
      memcpy(&ext_superblock,(EXT_SIMPLE_SUPERBLOCK *)&datosfich[0], SIZE_BLOQUE);
      memcpy(&directorio,(EXT_ENTRADA_DIR *)&datosfich[3], SIZE_BLOQUE);
@@ -59,38 +60,50 @@ int main()
      
      // Buce de tratamiento de comandos
      for (;;){
-		 //do {
+		 do {
 		 printf (">> ");
 		 fflush(stdin);
 		 fgets(comando, LONGITUD_COMANDO, stdin);
-		 //} while (ComprobarComando(comando,orden,argumento1,argumento2) !=0);
 		 
-		/* printf("\n%s",comando);
-		 int a=strcmp(&comando,"info\n");
-		 printf("\n%d",a);
-		 printf("\n%d",strlen (&comando));
-		  printf("\n%d",strlen ("info"));
-		 */
-		if (strcmp(comando,"info\n")==0) {
-			printf("\nINFO\n");
-            //Directorio(&directorio,&ext_blq_inodos);
-            continue;
-        }
-        if (strcmp(comando,"rename\n")==0) {
-		 	printf("\nRENAME\n");
-            //Directorio(&directorio,&ext_blq_inodos);
-            continue;
-        }
-        if (strcmp(comando,"remove\n")==0) {
-		 	printf("\nREMOVE\n");
-            //Directorio(&directorio,&ext_blq_inodos);
-            continue;
-        }
-        if (strcmp(comando,"copy\n")==0) {
-		 	printf("\nCOPY\n");
-            //Directorio(&directorio,&ext_blq_inodos);
-            continue;
-        }
+		 } while (ComprobarComando(comando,orden,argumento1,argumento2) !=0);
+		 
+		
+		// printf("\nB%sB\n",orden);
+		// printf("\nC%sC\n",argumento1);
+		// printf("\nD%sD\n",argumento2);
+		 
+		if(strcmp(orden,"info")==0){
+			printf("INFO\n");
+			continue;
+		}
+		if(strcmp(orden,"bytemaps")==0){
+			printf("BYTEMAPS\n");
+			continue;
+		}
+		if(strcmp(orden,"dir")==0){
+			printf("DIR\n");
+			continue;
+		}
+		if(strcmp(orden,"rename")==0){
+			printf("RENAME\n");
+			continue;
+		}
+		if(strcmp(orden,"imprimir")==0){
+			printf("IMPRIMIR\n");
+			continue;
+		}
+		if(strcmp(orden,"remove")==0){
+			printf("REMOVE\n");
+			continue;
+		}
+		if(strcmp(orden,"copy")==0){
+			printf("COPY\n");
+			continue;
+		}
+		if(orden=="salir"){
+			printf("SALIR\n");
+			continue;
+		}
             
          //...
          // Escritura de metadatos en comandos rename, remove, copy
@@ -104,11 +117,64 @@ int main()
          //Si el comando es salir se habrÃ¡n escrito todos los metadatos
          //faltan los datos y cerrar
          */
-        if (strcmp(comando,"salir\n")==0){
+        if (strcmp(orden,"salir")==0){
         	//GrabarDatos(&memdatos,fent);
             printf("\nSALIR\n");
             fclose(fent);
             return 0;
         }
      }
+}
+
+int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argumento2){
+	//Limpiamos las variables
+	strcpy(orden,"");
+	strcpy(argumento1,"");
+	strcpy(argumento2,"");	
+	
+	//Sustituimos el /n por un /0
+	char aux[strlen(strcomando)-1];
+	int contador=0;
+	strncpy(aux,strcomando,strlen(strcomando)-1);
+	aux[strlen(strcomando)-1]='\0';
+	
+	//printf("\n[%s][%d]",aux,strlen(aux));
+	//Asignamos la orden y los argumentos
+	char *token=strtok(aux, " ");		
+		
+	while(token!=NULL){		
+		if(contador==0){
+			strcpy(orden,token);			
+		}else if(contador==1){
+			strcpy(argumento1,token);			
+		}else if(contador==2){
+			strcpy(argumento2,token);
+		}
+		token=strtok(NULL, " ");
+		contador++;
+	}
+	
+	//Comprobamos ordenes
+	if(strcmp(orden,"info")==0){
+		return 0;	//Retorna 0 si la funcion existe
+	}else if(strcmp(orden,"bytemaps")==0){
+		return 0;
+	}else if(strcmp(orden,"dir")==0){
+		return 0;
+	}else if(strcmp(orden,"rename")==0){
+		return 0;
+	}else if(strcmp(orden,"imprimir")==0){
+		return 0;
+	}else if(strcmp(orden,"remove")==0){
+		return 0;
+	}else if(strcmp(orden,"copy")==0){
+		return 0;
+	}else if(strcmp(orden,"salir")==0){
+		return 0;
+	}else{
+		printf("\nERROR: Comando ilegal [bytemaps,copy,dir,info,imprimir,rename,remove,salir]\n");
+		return 1;	
+	}
+	
+	
 }
