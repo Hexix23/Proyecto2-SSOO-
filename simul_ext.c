@@ -89,10 +89,12 @@ int main()
 		}
 		if(strcmp(orden,"dir")==0){
 			printf("DIR\n");
+			Directorio(directorio, &ext_blq_inodos);
 			continue;
 		}
 		if(strcmp(orden,"rename")==0){
 			printf("RENAME\n");
+			//Renombrar(directorio, ext_blq_inodos, argumento1, argumento2);
 			continue;
 		}
 		if(strcmp(orden,"imprimir")==0){
@@ -223,6 +225,26 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
 	printf("\n");
 }	
 	
+int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, char *nombreantiguo, char *nombrenuevo){
+
+	//Comprobamos si existe el fichero
+	for(int i = 0; (directorio+i)->dir_nfich != NULL_INODO; i++){
+		printf("i");
+	}
+
+	return 0;
+}
 	
-	
-	
+
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos){
+	int i,j;
+	for(i = 1; i < MAX_FICHEROS; i++){
+		if((directorio+i)->dir_inodo != NULL_INODO){
+			printf("%s\t tamano: %d\t inodo: %d\t bloques: ", (directorio+i)->dir_nfich, inodos->blq_inodos[(directorio+i)->dir_inodo].size_fichero, (directorio+i)->dir_inodo);
+				for(j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){
+					printf("%d ", inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]);
+				}
+				printf("\n");
+		}
+	}
+}	
