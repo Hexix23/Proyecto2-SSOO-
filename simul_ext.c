@@ -73,11 +73,18 @@ int main()
 		// printf("\nD%sD\n",argumento2);
 		 
 		if(strcmp(orden,"info")==0){
-			printf("INFO\n");
+			//printf("INFO\n");
+			printf("Bloque %d Bytes\n",SIZE_BLOQUE);
+			printf("inodos particion = %d\n",MAX_INODOS);
+			printf("inodos libres = %d\n",ext_superblock.s_free_inodes_count);
+			printf("Bloques particion = %d\n",MAX_BLOQUES_PARTICION);
+			printf("Bloques libres = %d\n",ext_superblock.s_free_blocks_count);
+			printf("Primer bloque de datos = %d\n",PRIM_BLOQUE_DATOS);
 			continue;
 		}
 		if(strcmp(orden,"bytemaps")==0){
-			printf("BYTEMAPS\n");
+			//printf("BYTEMAPS\n");
+			Printbytemaps(&ext_bytemaps);
 			continue;
 		}
 		if(strcmp(orden,"dir")==0){
@@ -162,19 +169,60 @@ int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argu
 	}else if(strcmp(orden,"dir")==0){
 		return 0;
 	}else if(strcmp(orden,"rename")==0){
-		return 0;
+		if((strlen(argumento1)>0) && (strlen(argumento2)>0) ){
+			return 0;
+		}else{
+			printf("Argumentos incorrectos\nComando correcto \"rename nombre_origen.txt nombre_final.txt\"\n");
+			return 1;
+		}
+		
 	}else if(strcmp(orden,"imprimir")==0){
-		return 0;
+		if(strlen(argumento1)>0){
+			if(strlen(argumento2)>0){
+				printf("Argumentos incorrectos\nComando correcto \"imprimir archivo.txt\"\n");
+				return 1;
+			}
+			return 0;
+		}else{printf("Argumentos incorrectos\nComando correcto \"remove archivo.txt\"\n");}
 	}else if(strcmp(orden,"remove")==0){
-		return 0;
+		if(strlen(argumento1)>0){
+			if(strlen(argumento2)>0){
+				printf("Argumentos incorrectos\nComando correcto \"remove archivo.txt\"\n");
+				return 1;
+			}
+			return 0;
+		}else{printf("Argumentos incorrectos\nComando correcto \"remove archivo.txt\"\n");}
 	}else if(strcmp(orden,"copy")==0){
-		return 0;
+		if((strlen(argumento1)>0) && (strlen(argumento2)>0) ){
+			return 0;
+		}else{
+			printf("Argumentos incorrectos\nComando correcto \"copy nombre_origen.txt nombre_final.txt\"\n");
+			return 1;
+		}
 	}else if(strcmp(orden,"salir")==0){
 		return 0;
 	}else{
-		printf("\nERROR: Comando ilegal [bytemaps,copy,dir,info,imprimir,rename,remove,salir]\n");
+		printf("ERROR: Comando ilegal [bytemaps,copy,dir,info,imprimir,rename,remove,salir]\n");
 		return 1;	
 	}
 	
 	
 }
+
+void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
+	int i=0;
+	
+	printf("Inodos: ");
+	for(i=0;i<MAX_INODOS;i++){
+		printf("%d",ext_bytemaps->bmap_inodos[i]);
+	}
+	printf("\nBloques [0-25]: ");
+	for(i=0;i<25;i++){
+		printf("%d", ext_bytemaps->bmap_bloques[i]);
+	}
+	printf("\n");
+}	
+	
+	
+	
+	
