@@ -109,6 +109,7 @@ int main()
 		}
 		if(strcmp(orden,"imprimir")==0){
 			printf("IMPRIMIR\n");
+			Imprimir(directorio, &ext_blq_inodos, datosfich, argumento1);
 			continue;
 		}
 		if(strcmp(orden,"remove")==0){
@@ -285,3 +286,20 @@ int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, char *nombrea
 		
 }
 	
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_DATOS *memdatos, char *nombre){
+	int i, j;
+	for(i = 1; i < MAX_FICHEROS; i++){
+		if((directorio+i)->dir_inodo != NULL_INODO){
+			
+			if(strcmp(nombre,(directorio+i)->dir_nfich) == 0){//Si el archivo existe
+				for(j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){//
+                  char *aux = memdatos[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]].dato;
+				  aux[SIZE_BLOQUE]='\0';
+				  printf("%s", aux);
+                }
+				printf("\n");
+			}	
+		}//Si es NULL
+	}
+	return 0;
+}
