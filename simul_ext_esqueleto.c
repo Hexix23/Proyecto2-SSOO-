@@ -114,6 +114,7 @@ int main()
 		}
 		if(strcmp(orden,"remove")==0){
 			printf("REMOVE\n");
+			Borrar(directorio, &ext_blq_inodos, &ext_bytemaps, &ext_superblock, argumento1, fent);
 			continue;
 		}
 		if(strcmp(orden,"copy")==0){
@@ -302,4 +303,29 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_DATOS *mem
 		}//Si es NULL
 	}
 	return 0;
+}
+
+int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock, char *nombre,  FILE *fich){
+	int i,j;
+	for(i = 1; i < MAX_FICHEROS; i++){
+		if((directorio+i)->dir_inodo != NULL_INODO){
+			
+			if(strcmp(nombre,(directorio+i)->dir_nfich) == 0){
+				
+				for(j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){//
+                  printf("\n[%d]\n",inodos->blq_inodos[(directorio+i)->dir_inodo].size_fichero);
+                  
+                	for(j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){
+                    	//printf("%d ", inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]);
+                    	ext_bytemaps->bmap_bloques[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]]=0;//Borra bloques del bytemap de bloques
+                    	//ext_bytemaps->bmap_inodos[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]]=0;//Borra bloques del bytemap de inodos
+						
+                    	inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]=NULL_BLOQUE;//Pone a NULL los numeros de bloque
+                    	//printf("%X ", inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]);
+                	}
+                	
+                }
+			}
+		}
+	}
 }
