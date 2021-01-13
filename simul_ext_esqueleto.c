@@ -119,6 +119,7 @@ int main()
 		}
 		if(strcmp(orden,"copy")==0){
 			printf("COPY\n");
+			Copiar(directorio, &ext_blq_inodos, &ext_bytemaps, &ext_superblock, datosfich, argumento1, argumento2,  fent);
 			continue;
 		}
 		if(orden=="salir"){
@@ -333,12 +334,31 @@ int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *e
 
 }
 
-int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock, EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich){
-	int aux;
+int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *ext_bytemaps, 
+			EXT_SIMPLE_SUPERBLOCK *ext_superblock, EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich){
+	int aux = 0;
+	int fichero = 0;
 	for(int i = 1; i < MAX_FICHEROS; i++){
 		if((directorio+i)->dir_inodo != NULL_INODO){
-			for(int i = 3; i < MAX_INODOS; i++){//
-				
+			if(strcmp(nombreorigen,(directorio+i)->dir_nfich) == 0){
+				aux++;	
+				//return 1;
+			}if(strcmp(nombredestino,(directorio+i)->dir_nfich) == 0){
+				//return 0;
+			}
+		}
+		fichero++;
+	}
+
+	if(aux == 1){
+		strcpy((directorio+fichero+1)->dir_nfich, nombredestino);
+		printf("%s", (directorio+fichero+1)->dir_nfich);
+		for(int i = 3; i < MAX_INODOS; i++){
+			printf("hola\n");
+			/*if((directorio+1)->dir_inodo == 0){
+				printf("hola");
+				ext_bytemaps->bmap_inodos[(directorio+i)->dir_inodo]=1;//Borra el bytemap de inodos
+			}*/
 		}
 	}
 }
