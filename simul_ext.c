@@ -94,7 +94,19 @@ int main()
 		}
 		if(strcmp(orden,"rename")==0){
 			printf("RENAME\n");
-			//Renombrar(directorio, ext_blq_inodos, argumento1, argumento2);
+			Renombrar(directorio, &ext_blq_inodos, argumento1, argumento2);
+			//printf("%d", Renombrar(directorio, &ext_blq_inodos, argumento1, argumento2));
+			printf("%s\n", argumento2);
+			if(Renombrar(directorio, &ext_blq_inodos, argumento1, argumento2) == 0){
+				printf("ERROR el fichero %s no encontrado\n");
+			}
+			if(Renombrar(directorio, &ext_blq_inodos, argumento1, argumento2) == -1){
+				printf("ERROR el fichero %s ya existe\n", argumento2);
+			}
+			
+			if(Renombrar(directorio, &ext_blq_inodos, argumento1, argumento2) == 1){
+				printf("Bien\n");
+			}
 			continue;
 		}
 		if(strcmp(orden,"imprimir")==0){
@@ -226,15 +238,27 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
 }	
 	
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, char *nombreantiguo, char *nombrenuevo){
+    int i, j;
+	int aux = 0;
+    for(i = 1;(directorio+i)->dir_inodo != NULL_INODO; i++){
+			if((strcmp(nombreantiguo, (directorio+i)->dir_nfich) == 0)){
+				aux++;
+				j = aux;
+				//break;
+			}
+			if((strcmp(nombrenuevo, (directorio+i)->dir_nfich) == 0)){
+				//printf("fallo\n");
+				return -1;
+			}
+    }
 
-	//Comprobamos si existe el fichero
-	for(int i = 0; (directorio+i)->dir_nfich != NULL_INODO; i++){
-		printf("i");
+	if(aux == 1){
+		//printf("acierto\n");
+		strcpy((directorio+j)->dir_nfich, nombrenuevo);
+		//printf("%s\n", (directorio+aux)->dir_nfich);
 	}
-
-	return 0;
+	return aux;
 }
-	
 
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos){
 	int i,j;

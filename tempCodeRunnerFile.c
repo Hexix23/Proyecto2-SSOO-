@@ -1,0 +1,1 @@
+strcpy((directorio+j)->dir_nfich, nombrenuevo);
