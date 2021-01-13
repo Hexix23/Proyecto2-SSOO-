@@ -224,15 +224,15 @@ int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argu
 }
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
-	int i=0;
+	int i;
 	
 	printf("Inodos: ");
 	for(i=0;i<MAX_INODOS;i++){
-		printf("%d",ext_bytemaps->bmap_inodos[i]);
+		printf("%d ",ext_bytemaps->bmap_inodos[i]);
 	}
 	printf("\nBloques [0-25]: ");
 	for(i=0;i<25;i++){
-		printf("%d", ext_bytemaps->bmap_bloques[i]);
+		printf("%d ", ext_bytemaps->bmap_bloques[i]);
 	}
 	printf("\n");
 }
@@ -306,26 +306,39 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_DATOS *mem
 }
 
 int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock, char *nombre,  FILE *fich){
-	int i,j;
-	for(i = 1; i < MAX_FICHEROS; i++){
+	int aux;
+	for(int i = 1; i < MAX_FICHEROS; i++){
 		if((directorio+i)->dir_inodo != NULL_INODO){
-			
 			if(strcmp(nombre,(directorio+i)->dir_nfich) == 0){
-				
-				for(j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){//
+				aux =  i;//inicializamos una variable auxiliar para guardar la posicion donde se encuentra el fichero y mas adelante poder BORRAR el directorio donde se encuentra el fichero
+				for(int j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){//
                   printf("\n[%d]\n",inodos->blq_inodos[(directorio+i)->dir_inodo].size_fichero);
-                  
-                	for(j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){
-                    	//printf("%d ", inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]);
-                    	ext_bytemaps->bmap_bloques[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]]=0;//Borra bloques del bytemap de bloques
-                    	//ext_bytemaps->bmap_inodos[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]]=0;//Borra bloques del bytemap de inodos
-						
-                    	inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]=NULL_BLOQUE;//Pone a NULL los numeros de bloque
-                    	//printf("%X ", inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]);
-                	}
-                	
+                
+                    ext_bytemaps->bmap_bloques[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]]=0;//Borra bloques del bytemap de bloques
+					ext_bytemaps->bmap_inodos[(directorio+i)->dir_inodo]=0;//Borra el bytemap de inodos
+					
+					inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]=NULL_BLOQUE;//borramos los datos del bloque
+					inodos->blq_inodos[(directorio+i)->dir_inodo].size_fichero = 0;//borramos el tamaño del fichero
+					
+					ext_superblock->s_free_blocks_count++;//liberamos los bloques que se han borrado
+					ext_superblock->s_free_inodes_count++;//liberamos los inodos que se han borrado
+					
                 }
+				for(int i = aux; i < MAX_FICHEROS-1; i++){//Borramos  los datos del fichero
+					directorio[i] = directorio[i + 1];
+				}
 			}
+		}
+	}
+
+}
+
+int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock, EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich){
+	int aux;
+	for(int i = 1; i < MAX_FICHEROS; i++){
+		if((directorio+i)->dir_inodo != NULL_INODO){
+			for(int i = 3; i < MAX_INODOS; i++){//
+				
 		}
 	}
 }
