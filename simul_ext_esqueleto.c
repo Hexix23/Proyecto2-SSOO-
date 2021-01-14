@@ -340,9 +340,9 @@ int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *e
 	int auxSave;
 	int fichero = 0;
 	int seguir = 1;
-	for(int i = 1; i < MAX_FICHEROS; i++){
-		if((directorio+i)->dir_inodo != NULL_INODO){
-			if(strcmp(nombreorigen,(directorio+i)->dir_nfich) == 0){
+	for(int i = 1; i < MAX_FICHEROS; i++){//realizamos la comprobacion para saber si existe el fichero recorriendo todos los fichero(MAX_FICHEROS)
+		if((directorio+i)->dir_inodo != NULL_INODO){//cuando encontramos un acierto entra en el IF(un i-nodo NO NULO)
+			if(strcmp(nombreorigen,(directorio+i)->dir_nfich) == 0){//si el argumento1 del comando coincide con el nombre del fichero entra dentro de la condición
 				aux++;	
 				auxSave = i;
 				//return 1;
