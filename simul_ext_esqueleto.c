@@ -50,8 +50,13 @@ int main()
      //...
      
      fent = fopen("particion.bin","r+b");
+     if(fent==NULL){
+     	printf("\nFichero no encontrado");
+     	exit(-1);
+	 }
      fread(&datosfich, SIZE_BLOQUE, MAX_BLOQUES_PARTICION, fent);
      printf("");
+     
      
      memcpy(&ext_superblock,(EXT_SIMPLE_SUPERBLOCK *)&datosfich[0], SIZE_BLOQUE);
      memcpy(&directorio,(EXT_ENTRADA_DIR *)&datosfich[3], SIZE_BLOQUE);
@@ -124,6 +129,7 @@ int main()
 		}
 		if(orden=="salir"){
 			printf("SALIR\n");
+			
 			continue;
 		}
             
@@ -140,6 +146,11 @@ int main()
          //faltan los datos y cerrar
          */
         if (strcmp(orden,"salir")==0){
+        	
+        	Grabarinodosydirectorio(directorio, &ext_blq_inodos, fent);
+			GrabarByteMaps(&ext_bytemaps, fent);
+			GrabarSuperBloque(&ext_superblock, fent);
+			GrabarDatos(memdatos, fent);
         	//GrabarDatos(&memdatos,fent);
             printf("\nSALIR\n");
             fclose(fent);
@@ -295,7 +306,8 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_DATOS *mem
 			
 			if(strcmp(nombre,(directorio+i)->dir_nfich) == 0){//Si el archivo existe
 				for(j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){//
-                  char *aux = memdatos[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]].dato;
+                  char aux[SIZE_BLOQUE];
+                  memcpy(aux,memdatos[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]].dato,SIZE_BLOQUE);
 				  aux[SIZE_BLOQUE]='\0';
 				  printf("%s", aux);
                 }
@@ -308,12 +320,14 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_DATOS *mem
 
 int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock, char *nombre,  FILE *fich){
 	int aux;
-	for(int i = 1; i < MAX_FICHEROS; i++){
+	int i;
+	for(i = 1; i < MAX_FICHEROS; i++){
 		if((directorio+i)->dir_inodo != NULL_INODO){
 			if(strcmp(nombre,(directorio+i)->dir_nfich) == 0){
 				aux =  i;//inicializamos una variable auxiliar para guardar la posicion donde se encuentra el fichero y mas adelante poder BORRAR el directorio donde se encuentra el fichero
-				for(int j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){//
-                  printf("\n[%d]\n",inodos->blq_inodos[(directorio+i)->dir_inodo].size_fichero);
+				int j;
+				for(j = 0; inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j] != NULL_INODO; j++){//
+                  //printf("\n[%d]\n",inodos->blq_inodos[(directorio+i)->dir_inodo].size_fichero);
                 
                     ext_bytemaps->bmap_bloques[inodos->blq_inodos[(directorio+i)->dir_inodo].i_nbloque[j]]=0;//Borra bloques del bytemap de bloques
 					ext_bytemaps->bmap_inodos[(directorio+i)->dir_inodo]=0;//Borra el bytemap de inodos
@@ -325,7 +339,8 @@ int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *e
 					ext_superblock->s_free_inodes_count++;//liberamos los inodos que se han borrado
 					
                 }
-				for(int i = aux; i < MAX_FICHEROS-1; i++){//Borramos  los datos del fichero
+                int i;
+				for(i = aux; i < MAX_FICHEROS-1; i++){//Borramos  los datos del fichero
 					directorio[i] = directorio[i + 1];
 				}
 			}
@@ -340,7 +355,8 @@ int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *e
 	int auxSave;
 	int fichero = 0;
 	int seguir = 1;
-	for(int i = 1; i < MAX_FICHEROS; i++){//realizamos la comprobacion para saber si existe el fichero recorriendo todos los fichero(MAX_FICHEROS)
+	int i;
+	for(i = 1; i < MAX_FICHEROS; i++){//realizamos la comprobacion para saber si existe el fichero recorriendo todos los fichero(MAX_FICHEROS)
 		if((directorio+i)->dir_inodo != NULL_INODO){//cuando encontramos un acierto entra en el IF(un i-nodo NO NULO)
 			if(strcmp(nombreorigen,(directorio+i)->dir_nfich) == 0){//si el argumento1 del comando coincide con el nombre del fichero entra dentro de la condición
 				aux++;	
@@ -355,25 +371,52 @@ int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, EXT_BYTE_MAPS *e
 
 	if(aux == 1){
 		strcpy((directorio+fichero+1)->dir_nfich, nombredestino);
-		for(int i = 1; i < 5; i++){
-			printf("[%s] ",(directorio+i)->dir_nfich);
-		}
-		for(int i = 3; seguir ; i++){
+		
+		for(i = 3; seguir ; i++){
 			if(ext_bytemaps->bmap_inodos[i] == 0){
 				ext_bytemaps->bmap_inodos[i] = 1;
 				(directorio+fichero+1)->dir_inodo = i;
 				seguir = 0;
 			}
 		}
+		inodos->blq_inodos[directorio[fichero+1].dir_inodo].size_fichero=inodos->blq_inodos[directorio[auxSave].dir_inodo].size_fichero;//Copiar el tamanio
 		int j = 0;
-		for(int i = 0; inodos->blq_inodos[(directorio+auxSave)->dir_inodo].i_nbloque[i] != NULL_BLOQUE; i++){
+		
+		for(i = 0; inodos->blq_inodos[(directorio+auxSave)->dir_inodo].i_nbloque[i] != NULL_BLOQUE; i++){
 			for(j; ext_bytemaps->bmap_bloques[j] != 0; j++){
 				if(ext_bytemaps->bmap_bloques[j+1] == 0){
 					inodos->blq_inodos[(directorio+fichero+1)->dir_inodo].i_nbloque[i] =+ j+1;
-					
+					memcpy(memdatos[j+1].dato,memdatos[inodos->blq_inodos[directorio[auxSave].dir_inodo].i_nbloque[i]].dato,SIZE_BLOQUE);
 				}
+				
 			}
 			ext_bytemaps->bmap_bloques[j] = 1;
 		}
 	}
 }
+
+
+void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich){
+	fseek(fich, SIZE_BLOQUE*1, SEEK_SET);		
+	fwrite((EXT_DATOS *)ext_bytemaps, SIZE_BLOQUE, 1, fich);
+
+}
+void GrabarDatos(EXT_DATOS *memdatos, FILE *fich){
+	fseek(fich, SIZE_BLOQUE*4, SEEK_SET);		
+	fwrite((EXT_DATOS *)memdatos, MAX_BLOQUES_DATOS*SIZE_BLOQUE, 1, fich);	
+}
+void Grabarinodosydirectorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, FILE *fich){
+	fseek(fich, SIZE_BLOQUE*2, SEEK_SET);	
+	fwrite((EXT_DATOS *)inodos, SIZE_BLOQUE, 1, fich);		
+	fseek(fich, SIZE_BLOQUE*3, SEEK_SET);
+	
+	fwrite((EXT_DATOS *)directorio, SIZE_BLOQUE, 1, fich);
+}
+
+void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich){
+	fseek(fich, SIZE_BLOQUE*0, SEEK_SET );
+	fwrite((EXT_DATOS *)ext_superblock, SIZE_BLOQUE, 1,fich);		
+}
+
+
+
